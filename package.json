@@ -1,14 +1,13 @@
 {
   "name": "ng2-app-example",
   "version": "0.1.0",
-  "license": "commercial",
+  "license": "MIT",
   "contributors": [
     "Boguslaw Skrzypkowiak <boguslaw.skrzypkowiak@icflix.com>"
   ],
   "scripts": {
     "start": "make server"
   },
-  "private": true,
   "dependencies": {
     "@angular/common": "2.0.0-rc.4",
     "@angular/compiler": "2.0.0-rc.4",
