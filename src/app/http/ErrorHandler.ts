@@ -6,7 +6,7 @@ export class ErrorHandler {
 
   public logToConsole<T>(error:any):Observable<T> {
     const errMsg:string = this.getErrorMessage(error);
-    console.error(`ICFLIX ERROR MESSAGE: ${errMsg}`);
+    console.error(`ERROR MESSAGE: ${errMsg}`);
     return Observable.throw(errMsg);
   }
 
