@@ -1,4 +1,4 @@
-import {Http} from '@angular/http';
+import {Http, Response, ResponseOptions} from '@angular/http';
 
 import {TypeMoq} from '../../../utils/TypeMoq';
 import {HttpJSONService} from '../../../../src/app/http/HttpJSONService';
@@ -13,12 +13,17 @@ describe('Service: Translation', () => {
   let mockErrorHandler:TypeMoq.Mock<ErrorHandler>;
   let mockObservableAny:TypeMoq.Mock<Observable<any>>;
   let httpJSONService:HttpJSONService;
+  let mockResponse:TypeMoq.Mock<Response>;
 
   beforeEach(() => {
     mockHttp = TypeMoq.Mock.ofType(Http);
     mockDataExtractor = TypeMoq.Mock.ofType(DataExtractor);
     mockErrorHandler = TypeMoq.Mock.ofType(ErrorHandler);
     mockObservableAny = TypeMoq.Mock.ofType(Observable);
+    mockDataExtractor.callBase = true;
+    mockErrorHandler.callBase = true;
+    mockResponse = TypeMoq.Mock.ofType2(Response, [ResponseOptions]);
+
     httpJSONService = new HttpJSONService(mockHttp.object, mockDataExtractor.object, mockErrorHandler.object);
   });
 
@@ -28,11 +33,11 @@ describe('Service: Translation', () => {
       // given
       const apiUrl:string = 'my-sample-api-url';
       mockHttp
-        .setup(x => x.delete(TypeMoq.It.isAny()))
-        .returns(() => mockObservableAny.object);
+          .setup(x => x.delete(TypeMoq.It.isAny()))
+          .returns(() => Observable.of(mockResponse.object));
 
       // when
-      httpJSONService.delete(apiUrl);
+      httpJSONService.delete(apiUrl).subscribe();
 
       // then
       mockHttp.verify(x => x.delete(apiUrl), TypeMoq.Times.once());
@@ -40,16 +45,18 @@ describe('Service: Translation', () => {
 
     it('logs error to console on failure', () => {
       // given
-      const error:any = 'my-sample-error';
+      const error:any = new Error('my-sample-error');
       mockHttp
         .setup(x => x.delete(TypeMoq.It.isAny()))
-        .returns(() => Observable.throw(new Error(error)));
+        .returns(() => Observable.throw(error));
+      mockErrorHandler.setup(x => x.logToConsole(TypeMoq.It.isValue(error)))
+          .returns(() => Observable.of(mockResponse.object));
 
       // when
-      httpJSONService.delete(TypeMoq.It.isAny());
+      httpJSONService.delete(TypeMoq.It.isAny()).subscribe();
 
       // then
-      mockErrorHandler.verify(x => x.logToConsole(error), TypeMoq.Times.once());
+      mockErrorHandler.verify(x => x.logToConsole(TypeMoq.It.isValue(error)), TypeMoq.Times.once());
     });
   });
 
